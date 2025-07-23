@@ -1,17 +1,31 @@
-import { useState } from 'react';
-import Navbar from './components/Navbar';
-import VideoPlayer from './components/VideoPlayer';
-import Chat from './components/Chat';
+import React, { useState } from "react";
+import Chat from "./components/Chat";
 
 export default function App() {
-  const [transcript, setTranscript] = useState('');
+  const [videoURL, setVideoURL] = useState("");
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900 text-black dark:text-white">
-      <Navbar />
-      <main className="p-4 max-w-4xl mx-auto">
-        <VideoPlayer onTranscriptReady={setTranscript} />
-        {transcript && <Chat transcript={transcript} />}
+    <div className="min-h-screen flex flex-col">
+      <header className="bg-black text-white p-4 text-center text-2xl font-bold">
+        🎥 Video AI Chat
+      </header>
+      <main className="flex flex-col items-center gap-4 p-6 flex-grow">
+        <input
+          className="w-full max-w-xl p-2 text-black rounded"
+          placeholder="Paste YouTube video URL..."
+          value={videoURL}
+          onChange={(e) => setVideoURL(e.target.value)}
+        />
+        {videoURL && (
+          <>
+            <video
+              src={videoURL}
+              controls
+              className="max-w-3xl w-full rounded shadow"
+            />
+            <Chat videoURL={videoURL} />
+          </>
+        )}
       </main>
     </div>
   );
