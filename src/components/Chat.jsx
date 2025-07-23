@@ -1,50 +1,39 @@
-import { useState, useEffect } from 'react';
+import React, { useState } from "react";
 
-export default function Chat({ transcript }) {
-  const [question, setQuestion] = useState('');
-  const [response, setResponse] = useState('🤖 Ask me anything from the video...');
-  const [qa, setQa] = useState(null);
-
-  useEffect(() => {
-    async function loadModel() {
-      const { pipeline } = await window.transformers.load();
-      const model = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
-      setQa(model);
-    }
-    loadModel();
-  }, []);
+export default function Chat({ videoURL }) {
+  const [question, setQuestion] = useState("");
+  const [chat, setChat] = useState([]);
 
   const askAI = async () => {
-    if (!question || !transcript) return;
-
-    setResponse('🤖 Thinking...');
-    const result = await qa({
-      question,
-      context: transcript.slice(0, 1000)
-    });
-
-    setResponse(result.answer);
+    const fakeAnswer = `🤖 Answer for: "${question}" (transcript analysis coming soon)`;
+    setChat([...chat, { q: question, a: fakeAnswer }]);
+    setQuestion("");
   };
 
   return (
-    <div className="bg-gray-100 dark:bg-gray-800 p-4 rounded shadow mt-4">
-      <h2 className="text-lg font-semibold mb-2">Ask AI from Transcript</h2>
+    <div className="w-full max-w-2xl mt-4">
       <div className="flex gap-2">
         <input
-          type="text"
+          className="flex-grow p-2 text-black rounded"
+          placeholder="Ask a question about the video..."
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          className="flex-1 p-2 rounded bg-white dark:bg-gray-700"
-          placeholder="Type your question..."
         />
         <button
           onClick={askAI}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
+          className="bg-blue-500 px-4 py-2 rounded hover:bg-blue-600"
         >
           Ask
         </button>
       </div>
-      {response && <p className="mt-4">{response}</p>}
+      <div className="mt-4 space-y-3">
+        {chat.map((c, i) => (
+          <div key={i} className="bg-gray-800 p-3 rounded">
+            <p className="font-semibold">❓ {c.q}</p>
+            <p className="text-green-400">💬 {c.a}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
