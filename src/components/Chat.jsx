@@ -1,27 +1,23 @@
-import { useState } from 'react';
-import { pipeline } from '@xenova/transformers';
-
-let qa;
+import { useState, useEffect } from 'react';
 
 export default function Chat({ transcript }) {
   const [question, setQuestion] = useState('');
-  const [response, setResponse] = useState('');
+  const [response, setResponse] = useState('🤖 Ask me anything from the video...');
+  const [qa, setQa] = useState(null);
 
-  const loadModel = async () => {
-    if (!qa) {
-      qa = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
+  useEffect(() => {
+    async function loadModel() {
+      const { pipeline } = await window.transformers.load();
+      const model = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
+      setQa(model);
     }
-  };
+    loadModel();
+  }, []);
 
   const askAI = async () => {
-    if (!transcript || !question) {
-      setResponse('Transcript or question missing.');
-      return;
-    }
+    if (!question || !transcript) return;
 
     setResponse('🤖 Thinking...');
-    await loadModel();
-
     const result = await qa({
       question,
       context: transcript.slice(0, 1000)
